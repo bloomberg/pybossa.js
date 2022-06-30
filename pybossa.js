@@ -17,14 +17,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 (function(pybossa, $, undefined) {
-    var url = '/';
-    var _userId;
-    var _observer;
+    let URL = '/';
+    let _userId;
+    let _observer;
 
     //AJAX calls
     function _userProgress(projectname) {
         return $.ajax({
-            url: url + 'api/project/' + projectname + '/userprogress',
+            url: URL + 'api/project/' + projectname + '/userprogress',
             cache: false,
             dataType: 'json'
         });
@@ -32,21 +32,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     function _fetchProject(projectname) {
         return $.ajax({
-            url: url + 'api/project',
+            url: URL + 'api/project',
             data: 'all=1&short_name='+projectname,
             dataType:'json'
         });
     }
 
-    function _newTaskUrl(projectId) {
-        var seg = window.pybossa.isGoldMode ? '/taskgold' : '/newtask'
-        return url + 'api/project/' + projectId + seg
+    function _newTaskUrl(projectId, taskId) {
+        let seg;
+        if (window.pybossa.isGoldMode) {
+            seg = '/taskgold';
+        } else if (taskId) {
+            seg = '/newtask/' + taskId;
+        } else {
+            seg = '/newtask';
+        }
+        return URL + 'api/project/' + projectId + seg;
     }
 
-    function _fetchNewTask(projectId, offset) {
+    function _fetchNewTask(projectId, offset, taskId) {
         offset = offset || 0;
         return $.ajax({
-            url: _newTaskUrl(projectId),
+            url: _newTaskUrl(projectId, taskId),
             data: 'offset=' + offset,
             cache: false,
             dataType: 'json'
@@ -55,7 +62,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     function _fetchTask(taskId) {
         return $.ajax({
-            url: url + 'api/task/' + taskId,
+            url: URL + 'api/task/' + taskId,
             cache: false,
             dataType: 'json'
         });
@@ -82,9 +89,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     }
 
     function _saveTaskRun(taskrun, projectId, containsFiles ) {
-        var requestUrl = url + 'api/taskrun';
+        var requestUrl = URL + 'api/taskrun';
         if(window.pybossa.isGoldMode){
-            requestUrl = url + 'api/project/' + projectId + '/taskgold';
+            requestUrl = URL + 'api/project/' + projectId + '/taskgold';
         }
         return containsFiles ? _postRequestAsForm(requestUrl, taskrun) : _postRequest(requestUrl, taskrun);
     }
@@ -95,7 +102,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         };
         return $.ajax({
             type: 'POST',
-            url: url + 'api/task/' + taskId + '/canceltask',
+            url: URL + 'api/task/' + taskId + '/canceltask',
             dataType: 'json',
             contentType: 'application/json',
             data: JSON.stringify(data)
@@ -108,7 +115,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         };
         return $.ajax({
             type: 'POST',
-            url: url + 'api/task/' + taskId + '/release_category_locks',
+            url: URL + 'api/task/' + taskId + '/release_category_locks',
             dataType: 'json',
             contentType: 'application/json',
             data: JSON.stringify(data)
@@ -117,7 +124,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     function _fetchLock(taskId) {
         return $.ajax({
-            url: url + 'api/task/' + taskId + '/lock',
+            url: URL + 'api/task/' + taskId + '/lock',
             cache: false,
             dataType: 'json'
         });
@@ -189,14 +196,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             return data;});
     }
 
-    function _getCurrentTaskId(url) {
-        pathArray = url.split('/');
-        if (url.indexOf('/task/')!=-1) {
-            var l = pathArray.length;
-            var i = 0;
-            for (i=0;i<l;i++) {
-                if (pathArray[i]=='task') {
-                    return pathArray[i+1];
+    function _getCurrentTaskId(pathname) {
+        const pathArray = pathname.split('/');
+        if (pathname.indexOf('/task/') != -1) {
+            for (let i = 0; i < pathArray.length; i++) {
+                if (pathArray[i] == 'task') {
+                    return pathArray[i + 1];
                 }
             }
         }
@@ -396,15 +401,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             project = project[0];
             function getNextTask(offset, previousTask) {
                 offset = offset || 0;
-                var def = $.Deferred();
-                var taskId = _getCurrentTaskId(_window.location.pathname);
-                if (typeof project === 'undefined' || !project) {
+                const def = $.Deferred();
+                const taskId = _getCurrentTaskId(_window.location.pathname);
+                if (!project) {
                     console.log("Warning: project seems undefined. Did you run in your project pybossa.run('projectname'); with the right name?");
-                };
-                var xhr = (taskId && (previousTask === undefined) && !_isCherryPick()) ? _fetchTask(taskId) : _fetchNewTask(project.id, offset);
-                xhr.done(function(task) {
+                }
+                let jqXHR;
+                if (taskId && (previousTask === undefined) && !_isCherryPick()) { // Task Browse
+                    jqXHR =  _fetchTask(taskId);
+                } else if (taskId && _isCherryPick() && previousTask === undefined) {  // cherry pick from task list
+                    jqXHR = _fetchNewTask(project.id, offset, taskId);
+                } else {  // Non cherry pick mode or auto pick a task after click "submit" button
+                    jqXHR = _fetchNewTask(project.id, offset);
+                }
+                jqXHR.done(function(task) {
                     if (previousTask && task.id === previousTask.id) {
-                        var secondTry = _fetchNewTask(project.id, offset+1)
+                        _fetchNewTask(project.id, offset+1)
                         .done(function(secondTask){
                             _resolveNextTaskLoaded(secondTask, def);
                         });
@@ -417,13 +429,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             }
 
             function loop(task) {
-                var taskSolved = $.Deferred(),
+                let taskSolved = $.Deferred(),
                     nextUrl;
                 if (task.id) {
-                    if (url != '/') {
-                        nextUrl = url + '/project/' + projectname + '/task/' + task.id;
-                    }
-                    else {
+                    if (URL != '/') {
+                        nextUrl = URL + '/project/' + projectname + '/task/' + task.id;
+                    } else {
                         nextUrl = '/project/' + projectname + '/task/' + task.id;
                     }
                     history.pushState({}, "Title", nextUrl);
@@ -452,9 +463,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         }
     };
 
-    pybossa.getCurrentTaskId = function (url) {
-        if (url !== undefined) {
-            return _getCurrentTaskId(url);
+    pybossa.getCurrentTaskId = function (pathname) {
+        if (pathname !== undefined) {
+            return _getCurrentTaskId(pathname);
         }
         else {
             return _getCurrentTaskId(window.location.pathname);
@@ -482,8 +493,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         if ( endpoint.charAt(endpoint.length-1) != '/' ) {
             endpoint += '/';
         }
-        url = endpoint;
-        return url;
+        URL = endpoint;
+        return URL;
     };
 
     pybossa.cancelTask = function (projectname, taskId) {

@@ -16,7 +16,7 @@ If you want to learn how to use the library, please, check the demo project and 
 
 * [FlickrPerson for PyBossa](https://github.com/PyBossa/app-flickrperson) [[doc]](http://docs.pybossa.com/en/latest/user/create-application-tutorial.html)
 
-If you want more details, check the [documentation](http://pybossajs.rtfd.org).
+If you want more details, check the [documentation](https://github.com/bloomberg/pybossa.js/blob/main/doc/library.rst).
 
 # Contributing to PyBossa.JS
 
