@@ -283,8 +283,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     }
 
     //This func determine if the project is completed.
-    function _projectCompleted (userProgress, quiz){
-        if (quiz && userProgress.remaining_for_user === 0 && quiz.status !== 'in_progress'){
+    function _projectCompleted (userProgress, quiz, isEmptyTask){
+        if (isEmptyTask || quiz && userProgress.remaining_for_user === 0 && quiz.status !== 'in_progress'){
             return { msg: 'Congratulations, you have completed the job.',
                      type: 'success' };
         }
@@ -318,7 +318,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     function _getNotificationMessage(userProgress, isEmptyTask){
         var quiz = userProgress.quiz;
         var config = quiz.config;
-        var projectCompleted = _projectCompleted(userProgress, quiz);
+        var projectCompleted = _projectCompleted(userProgress, quiz, isEmptyTask);
         var outOfGoldenTasks = _outOfGoldenTasks(quiz, config, isEmptyTask);
         var failedQuiz = _failedQuiz(quiz, config);
         var outOfNonGoldTask = _outOfNonGoldTask(isEmptyTask)
