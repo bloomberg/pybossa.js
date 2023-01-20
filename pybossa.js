@@ -318,13 +318,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     function _getNotificationMessage(userProgress, isEmptyTask){
         var quiz = userProgress.quiz;
         var config = quiz.config;
-        var projectCompleted = _projectCompleted(userProgress, quiz, isEmptyTask);
         var outOfGoldenTasks = _outOfGoldenTasks(quiz, config, isEmptyTask);
         var failedQuiz = _failedQuiz(quiz, config);
         var outOfNonGoldTask = _outOfNonGoldTask(isEmptyTask)
 
         return _readOnly() || outOfGoldenTasks || outOfNonGoldTask || _inGoldMode(isEmptyTask) ||
-               failedQuiz || projectCompleted ||
+               failedQuiz ||
                _passedQuiz(quiz, config) ||
                _quizStarted(userProgress, quiz, config) || _inQuizMode(userProgress, quiz, config);
     }
@@ -338,6 +337,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         }
 
         _userProgress(projectName).then(data => {
+            if (_projectCompleted( data, data.quiz, isEmptyTask)) {
+                window.location.href = window.location.protocol + "//" +
+                window.location.host + "/project/" + projectName + "?completed=true"
+            }
             var quizMsg = _getNotificationMessage(data, isEmptyTask);
             if(quizMsg){
                 pybossaNotify(quizMsg.msg, true, quizMsg.type);
