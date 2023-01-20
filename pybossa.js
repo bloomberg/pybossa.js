@@ -322,9 +322,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         var failedQuiz = _failedQuiz(quiz, config);
         var outOfNonGoldTask = _outOfNonGoldTask(isEmptyTask)
 
-        return _readOnly() || outOfGoldenTasks || outOfNonGoldTask || _inGoldMode(isEmptyTask) ||
-               failedQuiz ||
-               _passedQuiz(quiz, config) ||
+        return _readOnly() || outOfGoldenTasks || outOfNonGoldTask ||
+               _inGoldMode(isEmptyTask) || failedQuiz || _passedQuiz(quiz, config) ||
                _quizStarted(userProgress, quiz, config) || _inQuizMode(userProgress, quiz, config);
     }
 
