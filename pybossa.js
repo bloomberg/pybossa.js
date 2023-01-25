@@ -283,10 +283,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     }
 
     //This func determine if the project is completed.
-    function _projectCompleted (userProgress, quiz, isEmptyTask){
-        if (!window.pybossa.isReadOnly && !window.pybossa.isGoldMode &&
-           (isEmptyTask || (quiz && userProgress.remaining_for_user === 0 && quiz.status !== 'in_progress'))){
-            return true
+    function _projectCompleted (userProgress, quiz, isEmptyTask, projectName){
+        if (isEmptyTask || quiz && userProgress.remaining_for_user === 0 && quiz.status !== 'in_progress'){
+            window.location.href = window.location.protocol + "//" +
+            window.location.host + "/project/" + projectName + "?completed=true"
         }
         return false
     }
@@ -316,16 +316,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         return window.pybossa.isCherryPick;
     }
 
-    function _getNotificationMessage(userProgress, isEmptyTask){
+    function _getNotificationMessage(userProgress, isEmptyTask, projectName){
         var quiz = userProgress.quiz;
         var config = quiz.config;
-        var outOfGoldenTasks = _outOfGoldenTasks(quiz, config, isEmptyTask);
-        var failedQuiz = _failedQuiz(quiz, config);
-        var outOfNonGoldTask = _outOfNonGoldTask(isEmptyTask)
 
-        return _readOnly() || outOfGoldenTasks || outOfNonGoldTask ||
-               _inGoldMode(isEmptyTask) || failedQuiz || _passedQuiz(quiz, config) ||
-               _quizStarted(userProgress, quiz, config) || _inQuizMode(userProgress, quiz, config);
+        return _readOnly() || _outOfGoldenTasks(quiz, config, isEmptyTask) ||
+               _outOfNonGoldTask(isEmptyTask) || _inGoldMode(isEmptyTask) ||
+                                            // handles redirect on project completion
+               _failedQuiz(quiz, config) || _projectCompleted(userProgress, quiz, isEmptyTask, projectName) ||
+               _passedQuiz(quiz, config) || _quizStarted(userProgress, quiz, config) ||
+               _inQuizMode(userProgress, quiz, config);
     }
 
     function _displayBanner(isEmptyTask){
@@ -337,11 +337,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         }
 
         _userProgress(projectName).then(data => {
-            if (_projectCompleted( data, data.quiz, isEmptyTask)) {
-                window.location.href = window.location.protocol + "//" +
-                window.location.host + "/project/" + projectName + "?completed=true"
-            }
-            var quizMsg = _getNotificationMessage(data, isEmptyTask);
+            var quizMsg = _getNotificationMessage(data, isEmptyTask, projectName);
             if(quizMsg){
                 pybossaNotify(quizMsg.msg, true, quizMsg.type);
             }
