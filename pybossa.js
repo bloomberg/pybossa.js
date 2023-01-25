@@ -284,7 +284,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     //This func determine if the project is completed.
     function _projectCompleted (userProgress, quiz, isEmptyTask){
-        if (isEmptyTask || quiz && userProgress.remaining_for_user === 0 && quiz.status !== 'in_progress'){
+        if (!window.pybossa.isReadOnly && !window.pybossa.isGoldMode &&
+           (isEmptyTask || (quiz && userProgress.remaining_for_user === 0 && quiz.status !== 'in_progress'))){
             return true
         }
         return false
