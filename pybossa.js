@@ -286,7 +286,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     function _projectCompleted (userProgress, quiz, isEmptyTask, projectName){
         if (isEmptyTask || quiz && userProgress.remaining_for_user === 0 && quiz.status !== 'in_progress'){
             window.location.href = window.location.protocol + "//" +
-            window.location.host + "/project/" + projectName + "?completed=true"
+                                   window.location.host + "/project/" + projectName + "?completed=true"
         }
         return false
     }
