@@ -618,4 +618,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             });
         })
     };
+
+    pybossa.assignTaskToUser = function (projectName, taskId) {
+        const data = { 'projectname': projectName };
+        const url = URL + 'api/task/' + taskId + '/assign';
+        _postRequest(url, JSON.stringify(data)).done(() => {});
+    };
 } (window.pybossa = window.pybossa || {}, jQuery));
