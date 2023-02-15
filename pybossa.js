@@ -619,8 +619,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         })
     };
 
-    pybossa.assignTaskToUser = function (projectName, taskId, undo=false) {
-        const data = { 'projectname': projectName, 'undo': undo };
+    pybossa.assignTaskToUser = function (projectName, taskId, unassgin=false) {
+        const data = { 'projectname': projectName, 'unassgin': unassgin };
         const url = URL + 'api/task/' + taskId + '/assign';
         let ajaxResponse = _postRequest(url, JSON.stringify(data));
         return ajaxResponse;
