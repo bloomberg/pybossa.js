@@ -679,7 +679,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     pybossa.assignTaskToUser = function (projectName, taskId, unassgin=false) {
         const data = { 'projectname': projectName, 'unassgin': unassgin };
         const url = URL + 'api/task/' + taskId + '/assign';
-        let ajaxResponse = _postRequest(url, JSON.stringify(data));
+        let ajaxResponse = _postRequest(url, JSON.stringify(data)).then(() => {
+            let sticky = true;
+            pybossaNotify('The task has been saved and assigned to you.', true, 'info', true, sticky);
+        });
         return ajaxResponse;
     };
 
