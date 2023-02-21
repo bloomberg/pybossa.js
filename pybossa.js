@@ -432,20 +432,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     jqXHR =  _fetchTask(taskId);
                 } else if (taskId && _isCherryPick() && previousTask === undefined) {  // cherry pick from task list
                     jqXHR = _fetchNewTask(project.id, offset, taskId);
+                } else if (window.pybossa.editSubmission) {
+                    // with edit submission option, upon submit button clicked
+                    // suppress loading of next task. this will also disable
+                    // submit button avoiding multiple clicks
+                    jqXHR =  null;
                 } else {  // Non cherry pick mode or auto pick a task after click "submit" button
                     jqXHR = _fetchNewTask(project.id, offset);
                 }
-                jqXHR.done(function(task) {
-                    if (previousTask && task.id === previousTask.id) {
-                        _fetchNewTask(project.id, offset+1)
-                        .done(function(secondTask){
-                            _resolveNextTaskLoaded(secondTask, def);
-                        });
-                    }
-                    else {
-                        _resolveNextTaskLoaded(task, def);
-                    }
-                });
+
+                if (jqXHR){
+                    jqXHR.done(function(task) {
+                        if (previousTask && task.id === previousTask.id) {
+                            _fetchNewTask(project.id, offset+1)
+                            .done(function(secondTask){
+                                _resolveNextTaskLoaded(secondTask, def);
+                            });
+                        }
+                        else {
+                            _resolveNextTaskLoaded(task, def);
+                        }
+                    });
+                }
                 return def.promise();
             }
 
