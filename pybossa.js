@@ -116,9 +116,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         if (window.pybossa.editSubmission){
             requestUrl = requestUrl + "/" + window.pybossa.taskrunId;
             return containsFiles ? _putRequestAsForm(requestUrl, taskrun) : _putRequest(requestUrl, taskrun);
-        } else {
-            return containsFiles ? _postRequestAsForm(requestUrl, taskrun) : _postRequest(requestUrl, taskrun);
         }
+        return containsFiles ? _postRequestAsForm(requestUrl, taskrun) : _postRequest(requestUrl, taskrun);
     }
 
     function _cancelTask(projectname, taskId) {
