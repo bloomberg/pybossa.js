@@ -98,6 +98,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         });
     }
 
+    function _putRequestAsForm(url, data){
+        return $.ajax({
+            type: 'PUT',
+            url: url,
+            contentType: false,
+            processData: false,
+            data: data
+        });
+    }
+
     function _saveTaskRun(taskrun, projectId, containsFiles ) {
         var requestUrl = URL + 'api/taskrun';
         if(window.pybossa.isGoldMode){
@@ -105,7 +115,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         }
         if (window.pybossa.editSubmission){
             requestUrl = requestUrl + "/" + window.pybossa.taskrunId;
-            return _putRequest(requestUrl, taskrun);
+            return containsFiles ? _putRequestAsForm(requestUrl, taskrun) : _putRequest(requestUrl, taskrun);
         } else {
             return containsFiles ? _postRequestAsForm(requestUrl, taskrun) : _postRequest(requestUrl, taskrun);
         }
