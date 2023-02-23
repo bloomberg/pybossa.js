@@ -68,6 +68,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         });
     }
 
+    function _deleteRequest(url, data=null) {
+        return $.ajax({
+            type: 'DELETE',
+            url: url,
+            dataType: 'json',
+            contentType: 'application/json',
+            data: data
+        })
+    }
+
+    function _getRequest(url) {
+        return $.ajax({
+            url: url,
+            cache: false,
+            dataType: 'json'
+        })
+    }
+
     function _postRequest(url, data){
         return $.ajax({
             type: 'POST',
@@ -662,6 +680,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         const data = { 'projectname': projectName, 'unassgin': unassgin };
         const url = URL + 'api/task/' + taskId + '/assign';
         let ajaxResponse = _postRequest(url, JSON.stringify(data));
+        return ajaxResponse;
+    };
+
+    pybossa.savePartialAnswerToServer = function (taskId, data) {
+        const url = URL + 'api/task/' + taskId + '/partial_answer';
+        let ajaxResponse = _postRequest(url, JSON.stringify(data));
+        return ajaxResponse;
+    }
+
+    pybossa.getSavedAnswerFromServer = function (taskId) {
+        const url = URL + 'api/task/' + taskId + '/partial_answer';
+        let ajaxResponse = _getRequest(url);
+        return ajaxResponse;
+    }
+
+    pybossa.deleteSavedAnswerFromServer = function (taskId) {
+        const url = URL + 'api/task/' + taskId + '/partial_answer';
+        let ajaxResponse = _deleteRequest(url);
         return ajaxResponse;
     };
 } (window.pybossa = window.pybossa || {}, jQuery));
