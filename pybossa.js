@@ -82,7 +82,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         return $.ajax({
             url: url,
             cache: false,
-            dataType: 'json'
+            dataType: 'json',
+            contentType: 'application/json',
         })
     }
 
@@ -689,20 +690,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         return ajaxResponse;
     };
 
-    pybossa.savePartialAnswerToServer = function (taskId, data) {
-        const url = URL + 'api/task/' + taskId + '/partial_answer';
+    pybossa.savePartialAnswerToServer = function (taskId, data, projectName) {
+        const url = `${URL}api/project/${projectName}/task/${taskId}/partial_answer`;
         let ajaxResponse = _postRequest(url, JSON.stringify(data));
         return ajaxResponse;
     }
 
-    pybossa.getSavedAnswerFromServer = function (taskId) {
-        const url = URL + 'api/task/' + taskId + '/partial_answer';
+    pybossa.getSavedAnswerFromServer = function (taskId, projectName) {
+        const url = `${URL}api/project/${projectName}/task/${taskId}/partial_answer`;
         let ajaxResponse = _getRequest(url);
         return ajaxResponse;
     }
 
-    pybossa.deleteSavedAnswerFromServer = function (taskId) {
-        const url = URL + 'api/task/' + taskId + '/partial_answer';
+    pybossa.deleteSavedAnswerFromServer = function (taskId, projectName) {
+        const url = `${URL}api/project/${projectName}/task/${taskId}/partial_answer`;
         let ajaxResponse = _deleteRequest(url);
         return ajaxResponse;
     };
