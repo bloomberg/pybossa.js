@@ -680,19 +680,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     pybossa.assignTaskToUser = function (projectName, taskId, unassgin=false) {
         const data = { 'projectname': projectName, 'unassgin': unassgin };
         const url = URL + 'api/task/' + taskId + '/assign';
+        const sticky = true;
+        const timeout = 6000;
         let ajaxResponse = _postRequest(url, JSON.stringify(data)).then(() => {
             if (!unassgin) {
-                const sticky = true;
-                const msg = 'The task has been saved and assigned to you.'
-                pybossaNotify(msg, true, 'info', true, sticky);
+                const msg = 'The task has been saved and assigned to you.';
+                pybossaNotify(msg, true, 'info', true, sticky, timeout);
             }
+        }).fail(resp => {
+            const msg = resp.responseJSON['exception_msg'];
+            pybossaNotify(msg, true, 'error', false, sticky, timeout);
         });
         return ajaxResponse;
     };
 
     pybossa.savePartialAnswerToServer = function (taskId, data, projectName) {
         const url = `${URL}api/project/${projectName}/task/${taskId}/partial_answer`;
-        let ajaxResponse = _postRequest(url, JSON.stringify(data));
+        const sticky = true;
+        const timeout = 6000;
+        let ajaxResponse = _postRequest(url, JSON.stringify(data)).fail(resp => {
+            const msg = resp.responseJSON['exception_msg'];
+            pybossaNotify(msg, true, 'warning', true, sticky, timeout);
+        });
         return ajaxResponse;
     }
 
